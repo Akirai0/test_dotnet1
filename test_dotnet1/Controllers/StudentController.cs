@@ -14,25 +14,7 @@ namespace test_dotnet1.Controllers
 
         public IActionResult Index()
         {
-            var s1 = new Student();
-            var s2 = new Student();
-            var s3 = new Student();
-            s1.Id = 1;
-            s1.Name = "Akirai";
-            s1.Score = 0;
-
-            s2.Id = 2;
-            s2.Name = "Akiraie";
-            s2.Score = 0;
-
-            s3.Id = 3;
-            s3.Name = "Miyabi";
-            s3.Score = 0;
-
-            List<Student> Allstudent = new List<Student>();
-            Allstudent.Add(s1);
-            Allstudent.Add(s2);
-            Allstudent.Add(s3);
+            IEnumerable <Student> Allstudent = _db.Students;
             return View(Allstudent);
         }
 
@@ -40,9 +22,68 @@ namespace test_dotnet1.Controllers
         {
             return View();
         }
-        public IActionResult ShowScore(int id)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Student obj)
         {
-            return Content($"Score ID : {id}");
+            //ตรวจสอบความถูกต้องของข้อมูล
+            if (ModelState.IsValid)
+            {
+                _db.Students.Add(obj);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(obj);
+        }
+        
+        //check ข้อมูล
+        public IActionResult Edit(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            //ค้นหาข้อมูล
+            var obj = _db.Students.Find(id);
+            if (obj == null)
+            {
+                return NotFound();
+            }
+            return View(obj);
+        }
+
+        //Update_ข้อมูล
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Student obj)
+        {
+            //ตรวจสอบความถูกต้องของข้อมูล
+            if (ModelState.IsValid)
+            {
+                _db.Students.Update(obj);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(obj);
+        }
+
+        //ตรวจข้อมูลและลบข้อมูล (ลบ)
+        public IActionResult Delete(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            //ค้นหาข้อมูล
+            var obj = _db.Students.Find(id);
+            if (obj == null)
+            {
+                return NotFound();
+            }
+            _db.Students.Remove(obj);
+            _db.SaveChanges();
+            return RedirectToAction("Index");
         }
     }
 }
